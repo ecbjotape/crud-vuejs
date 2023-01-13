@@ -134,7 +134,7 @@ export default {
 
 <style>
 button {
-  margin-right: 16px;
+  margin: 0px 16px 16px 0px;
 }
 
 .col {
