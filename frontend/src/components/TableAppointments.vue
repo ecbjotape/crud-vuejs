@@ -32,4 +32,7 @@ export default {
 .table {
   max-width: 768px;
 }
+tr {
+  cursor: pointer;
+}
 </style>
