@@ -20,6 +20,10 @@ class Medico extends Model
 
     ];
 
+    protected $casts = [
+        'horarios' => 'array'
+    ];
+
     public function especialidade()
     {
         return $this->hasOne(Especialidades::class, foreignKey: "id", localKey: "especialidade_id");

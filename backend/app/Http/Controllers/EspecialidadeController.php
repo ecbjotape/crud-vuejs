@@ -15,13 +15,8 @@ class EspecialidadeController extends Controller
     public function index()
     {
         $especialidades = Especialidades::all();
-        if ($especialidades) {
 
-            return $especialidades;
-        } else {
-
-            return [];
-        }
+        return $especialidades;
     }
 
     /**

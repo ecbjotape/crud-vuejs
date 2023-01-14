@@ -14,8 +14,8 @@ class TipoDeConsulta extends Model
         'name',
     ];
 
-    public function Medico()
+    public function medicos()
     {
-        return $this->belongsTo(Medico::class, foreignKey: "tipo_de_consulta_id", ownerKey: "id");
+        return $this->hasMany(Medico::class);
     }
 }

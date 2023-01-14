@@ -12,10 +12,12 @@ class Especialidades extends Model
     protected $fillable = [
         'id',
         'especialidades',
+        "medico_id",
+
     ];
 
-    public function Medico()
+    public function medicos()
     {
-        return $this->belongsTo(Medico::class, foreignKey: "especialidade_id", ownerKey: "id");
+        return $this->hasMany(Medico::class);
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\EspecialidadeController;
 use App\Http\Controllers\MedicoController;
+use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\TipoDeConsultaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -43,6 +44,13 @@ Route::prefix('medico')->group(function () {
 });
 
 Route::prefix('paciente')->group(function () {
+    Route::get('/', [PacienteController::class, 'index']);
+    Route::post('/create', [PacienteController::class, 'create']);
+    Route::post('/update', [PacienteController::class, 'update']);
+    Route::post('/delete', [PacienteController::class, 'destroy']);
+});
+
+Route::prefix('consulta')->group(function () {
     Route::get('/', [MedicoController::class, 'index']);
     Route::post('/create', [MedicoController::class, 'create']);
     Route::post('/update', [MedicoController::class, 'update']);

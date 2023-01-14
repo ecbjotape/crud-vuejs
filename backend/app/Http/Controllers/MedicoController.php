@@ -3,16 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Models\Medico;
+use Exception;
 use Illuminate\Http\Request;
 
 class MedicoController extends Controller
 {
     public function index()
     {
+        try {
+            $response = Medico::with('especialidade', 'tipoDeConsulta')->get();
 
-        $medico = Medico::all();
-        if ($medico) {
-            return $medico;
+            return response()->json([
+                'message' => '',
+                'data' => $response,
+                'result' => true,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'data' => '',
+                'result' => false,
+            ], 500);
         }
         return [];
     }
@@ -24,11 +35,23 @@ class MedicoController extends Controller
      */
     public function create(Request $request)
     {
-        $dados = $request->all();
-        $response = Medico::create($dados)::with('especialidade', 'tiposDeConsulta')->get();
+        try {
 
+            $dados = $request->all();
+            $response = Medico::create($dados)::with('especialidade', 'tiposDeConsulta')->get();
 
-        return $response;
+            return response()->json([
+                'message' => '',
+                'data' => $response,
+                'result' => true,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'data' => '',
+                'result' => false,
+            ], 500);
+        }
     }
     /**
      * Store a newly created resource in storage.
@@ -72,15 +95,30 @@ class MedicoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $tipo = Medico::findOrfail($id);
+        try {
 
-        $tipo->update([
-            'name' => $request->name,
-            'crm' => $request->crm,
-            'horarios' => $request->horarios,
-            'especialidades' => $request->especialidades,
-            'tipo_de_consultas' => $request->tipo_de_consultas
-        ]);
+            $tipo = Medico::findOrfail($id);
+
+            $response = $tipo->update([
+                'name' => $request->name,
+                'crm' => $request->crm,
+                'horarios' => $request->horarios,
+                'especialidades' => $request->especialidades,
+                'tipo_de_consultas' => $request->tipo_de_consultas
+            ]);
+
+            return response()->json([
+                'message' => '',
+                'data' => $response,
+                'result' => true,
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'data' => '',
+                'result' => false,
+            ], 500);
+        }
     }
 
 

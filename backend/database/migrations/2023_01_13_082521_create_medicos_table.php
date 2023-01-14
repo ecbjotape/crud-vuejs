@@ -18,11 +18,9 @@ return new class extends Migration
             $table->timestamps();
             $table->string('name');
             $table->string('crm')->unique();
-            $table->string('horarios');
-            $table->integer('especialidade_id')->unsigned();
-            $table->integer('tipo_de_consulta_id')->unsigned();
-            $table->foreign('id')->references("especialidade_id")->on('especialidades');
-            $table->foreign('id')->references("tipo_de_consulta_id")->on('tipo_de_consultas');
+            $table->json('horarios');
+            $table->foreignId('especialidade_id')->constrained();
+            $table->foreignId('tipo_de_consulta_id')->constrained();
         });
     }
 
