@@ -3,28 +3,31 @@
     <b-container>
       <b-button v-b-modal.modal-1>Agendar</b-button>
       <b-button v-b-modal.modal-2>Cadastrar médico</b-button>
-      <b-button v-b-modal.modal-3>Criar especialidade</b-button>
-      <b-button v-b-modal.modal-4>Criar tipo</b-button>
-      <b-button v-b-modal.modal-5>Criar paciente</b-button>
+      <b-button v-b-modal.modal-3>Cadastrar especialidade</b-button>
+      <b-button v-b-modal.modal-type>Cadastrar tipo de consulta</b-button>
+      <b-button v-b-modal.modal-patient>Cadastrar paciente</b-button>
     </b-container>
 
     <!-- modal para marcar consulta -->
     <b-modal id="modal-1" title="Marcar consulta">
       <div class="col">
         <label for="input-live">Paciente:</label>
-        <b-form-select v-model="selected" :options="options"></b-form-select>
+        <b-form-select
+          v-model="patientSelected"
+          :options="patients"
+        ></b-form-select>
       </div>
       <div class="col">
         <label for="input-live">Especialidade:</label>
-        <b-form-select v-model="selected" :options="options" />
+        <b-form-select v-model="specialtySelected" :options="speciality" />
       </div>
       <div class="col">
-        <label for="input-live">Tipo:</label>
-        <b-form-select v-model="selected" :options="options" />
+        <label for="input-live">Tipo de consulta:</label>
+        <b-form-select v-model="typeSelected" :options="types" />
       </div>
       <div class="col">
         <label>Médico:</label>
-        <b-form-input v-model="text" placeholder="Digite o CRM do médico" />
+        <b-form-select v-model="doctorSelected" :options="doctors" />
       </div>
       <div class="col">
         <label>Data:</label>
@@ -40,7 +43,7 @@
       </div>
       <div class="col">
         <label for="input-live">Especialidade:</label>
-        <b-form-select v-model="selected" :options="options"></b-form-select>
+        <b-form-select v-model="selected" :options="speciality"></b-form-select>
       </div>
       <div class="col">
         <label>CRM:</label>
@@ -64,70 +67,157 @@
     </b-modal>
 
     <!-- modal para cadastrar tipo de consulta-->
-    <b-modal id="modal-4" title="Cadastrar tipo de consulta">
-      <div class="col">
-        <label>Especialidades:</label>
-        <b-form-select
-          v-model="specialtySelected"
-          :options="specialty"
-        ></b-form-select>
-      </div>
-      <div class="col">
-        <label>Tipo:</label>
-        <b-form-input
-          v-model="text"
-          placeholder="Digite o tipo de consulta"
-          type="text"
-        />
-      </div>
+    <b-modal id="modal-type" title="Cadastrar tipo de consulta" hide-footer>
+      <b-form @submit="createType">
+        <div class="col">
+          <label>Tipo:</label>
+          <b-form-input
+            v-model="typeForm.name"
+            placeholder="Ex: Presencial"
+            type="text"
+          />
+        </div>
+        <div class="col">
+          <b-button class="ml-auto" variant="primary" type="submit"
+            >Cadastrar tipo de consulta</b-button
+          >
+        </div>
+      </b-form>
     </b-modal>
 
     <!-- modal para criar paciente -->
-    <b-modal id="modal-5" title="Cadastrar paciente">
-      <div class="col">
-        <label>Nome do paciente:</label>
-        <b-form-input v-model="text" placeholder="Digite o nome do paciente" />
-      </div>
-      <div class="col">
-        <label>Telefone:</label>
-        <b-form-input
-          v-model="tel"
-          placeholder="(00) 00000-0000"
-          type="number"
-        />
-      </div>
-      <div class="col">
-        <label>CPF:</label>
-        <b-form-input
-          v-model="number"
-          placeholder="000.000.000-00"
-          type="number"
-        />
-      </div>
+    <b-modal id="modal-patient" title="Cadastrar paciente" hide-footer>
+      <b-form @submit="createPatient" id="patient" action="patient">
+        <div class="col">
+          <label>Nome do paciente:</label>
+          <b-form-input
+            v-model="patientForm.name"
+            required
+            placeholder="Digite o nome do paciente"
+          />
+        </div>
+        <div class="col">
+          <label>Telefone:</label>
+          <b-form-input
+            v-model="patientForm.phone"
+            placeholder="(00) 00000-0000"
+            type="number"
+            required
+          />
+        </div>
+        <div class="col">
+          <label>CPF:</label>
+          <b-form-input
+            v-model="patientForm.cpf"
+            placeholder="000.000.000-00"
+            type="number"
+            required
+          />
+        </div>
+        <div class="col">
+          <b-button class="ml-auto" variant="primary" type="submit"
+            >Cadastrar paciente</b-button
+          >
+        </div>
+      </b-form>
     </b-modal>
   </div>
 </template>
 
 <script>
+import useDoctor from "@/hooks/useDoctor";
+import usePatient from "@/hooks/usePatient";
+import useTypeAppointment from "@/hooks/useTypeAppointment";
+import useSpeciality from "@/hooks/useSpeciality";
+
 export default {
   name: "Appointment",
   data() {
     return {
-      selected: null,
-      options: [
-        { value: null, text: "Selecione uma especialidade" },
-        { value: "a", text: "This is First option" },
-        { value: "b", text: "Selected Option" },
-        { value: "teste", text: "This is an option with object value" },
-        { value: "d", text: "This one is disabled", disabled: true },
-      ],
+      patientForm: {
+        name: "",
+        phone: "",
+        cpf: "",
+      },
+      typeForm: {
+        name: "",
+      },
+
       specialtySelected: null,
-      specialty: [
-        { value: "psquiatria", text: "Psiquiatra" },
-        { value: "pediatria", text: "Pediatra" },
-        { value: "Oftalmologia", text: "Oftalmologista" },
-      ],
+      speciality: [{ value: null, text: "Selecione uma especialidade" }],
+
+      doctorSelected: null,
+      doctors: [{ value: null, text: "Selecione um médico" }],
+
+      patientSelected: null,
+      patients: [{ value: null, text: "Selecione um paciente" }],
+
+      typeSelected: null,
+      types: [{ value: null, text: "Selecione um tipo de consulta" }],
     };
+  },
+  created() {
+    this.getSpecialitys();
+    this.getDoctors();
+    this.getPatients();
+    this.getTypes();
+  },
+  methods: {
+    createPatient(event) {
+      event.preventDefault();
+      const { createPatient } = usePatient();
+      createPatient(this.patientForm);
+
+      this.$bvModal.hide("modal-patient");
+    },
+
+    createTypeAppointment(event) {
+      event.preventDefault();
+      const { createType } = useTypeAppointment();
+      createType(this.typeForm);
+
+      this.$bvModal.hide("modal-type");
+    },
+
+    async getSpecialitys() {
+      const { getAllSpecialitys } = useSpeciality();
+
+      const res = await getAllSpecialitys();
+
+      res.data.map((esp) => {
+        this.speciality.push({ value: esp.id, text: esp.especialidades });
+      });
+    },
+
+    async getDoctors() {
+      const { getAllDoctors } = useDoctor();
+
+      const res = await getAllDoctors();
+
+      res.data.data.map((doctor) => {
+        this.doctors.push({ value: doctor.id, text: doctor.name });
+      });
+    },
+
+    async getPatients() {
+      const { getAllPatients } = usePatient();
+
+      const res = await getAllPatients();
+
+      res.data.map((patient) => {
+        this.patients.push({ value: patient.id, text: patient.name });
+      });
+    },
+
+    async getTypes() {
+      const { getAllTypes } = useTypeAppointment();
+
+      const res = await getAllTypes();
+      console.log(res);
+      res.data.map((type) => {
+        this.types.push({ value: type.id, text: type.name });
+      });
+    },
   },
 };
 </script>
@@ -135,6 +225,7 @@ export default {
 <style>
 button {
   margin: 0px 16px 16px 0px;
+  border: none;
 }
 
 .col {
