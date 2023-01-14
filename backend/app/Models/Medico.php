@@ -14,14 +14,8 @@ class Medico extends Model
         'name',
         "crm",
         "horarios",
-        "tipos",
         "especialidade_id",
         "tipo_de_consulta_id"
-
-    ];
-
-    protected $casts = [
-        'horarios' => 'array'
     ];
 
     public function especialidade()

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Paciente;
+use Exception;
 use Illuminate\Http\Request;
 
 class PacienteController extends Controller
@@ -14,11 +15,23 @@ class PacienteController extends Controller
      */
     public function index()
     {
-        $paciente = Paciente::all();
-        if ($paciente) {
-            return $paciente;
+
+        try {
+            $response = Paciente::all();
+
+            return response()->json([
+                'message' => '',
+                'data' => $response,
+                'result' => true,
+            ], 200);
+        } catch (Exception $e) {
+
+            return response()->json([
+                'message' => $e->getMessage(),
+                'data' => '',
+                'result' => false,
+            ], 422);
         }
-        return [];
     }
 
     /**
@@ -28,10 +41,23 @@ class PacienteController extends Controller
      */
     public function create(Request $request)
     {
-        $dados = $request->all();
-        $response = Paciente::create($dados)->get();
+        try {
+            $dados = $request->all();
+            $response = Paciente::create($dados)->get();
 
-        return $response;
+            return response()->json([
+                'message' => '',
+                'data' => $response,
+                'result' => true,
+            ], 200);
+        } catch (Exception $e) {
+
+            return response()->json([
+                'message' => $e->getMessage(),
+                'data' => '',
+                'result' => false,
+            ], 422);
+        }
     }
 
     /**

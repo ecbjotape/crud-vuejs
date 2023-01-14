@@ -16,6 +16,11 @@ return new class extends Migration
         Schema::create('consultas', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->date('data');
+            $table->foreignId('especialidade_id')->constrained();
+            $table->foreignId('tipo_de_consulta_id')->constrained();
+            $table->foreignId('medico_id')->constrained();
+            $table->foreignId('paciente_id')->constrained();
         });
     }
 

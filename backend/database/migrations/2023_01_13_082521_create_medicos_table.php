@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamps();
             $table->string('name');
             $table->string('crm')->unique();
-            $table->json('horarios');
+            $table->string('horarios');
             $table->foreignId('especialidade_id')->constrained();
             $table->foreignId('tipo_de_consulta_id')->constrained();
         });

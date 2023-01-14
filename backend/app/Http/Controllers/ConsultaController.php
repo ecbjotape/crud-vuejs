@@ -2,16 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Medico;
+use App\Models\Consulta;
 use Exception;
 use Illuminate\Http\Request;
 
-class MedicoController extends Controller
+class ConsultaController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
         try {
-            $response = Medico::with('especialidade', 'tipoDeConsulta')->get();
+            $response = Consulta::with('especialidade', 'tipoDeConsulta', 'medico', 'paciente')->get();
 
             return response()->json([
                 'message' => '',
@@ -37,7 +42,7 @@ class MedicoController extends Controller
         try {
 
             $dados = $request->all();
-            $response = Medico::create($dados)::with('especialidade', 'tipoDeConsulta')->get();
+            $response = Consulta::create($dados)::with('especialidade', 'tipoDeConsulta', 'medico', 'paciente')->get();
 
             return response()->json([
                 'message' => '',
@@ -52,6 +57,7 @@ class MedicoController extends Controller
             ], 500);
         }
     }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -94,32 +100,8 @@ class MedicoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        try {
-
-            $tipo = Medico::findOrfail($id);
-
-            $response = $tipo->update([
-                'name' => $request->name,
-                'crm' => $request->crm,
-                'horarios' => $request->horarios,
-                'especialidades' => $request->especialidades,
-                'tipo_de_consultas' => $request->tipo_de_consultas
-            ]);
-
-            return response()->json([
-                'message' => '',
-                'data' => $response,
-                'result' => true,
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage(),
-                'data' => '',
-                'result' => false,
-            ], 500);
-        }
+        //
     }
-
 
     /**
      * Remove the specified resource from storage.
@@ -127,9 +109,8 @@ class MedicoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
+    public function destroy($id)
     {
-        $medico = Medico::findOrfail($request->id);
-        $medico->delete();
+        //
     }
 }
