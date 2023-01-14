@@ -1,7 +1,7 @@
 <template>
   <div class="mx-auto">
     <b-container>
-      <b-button v-b-modal.modal-1>Agendar</b-button>
+      <b-button v-b-modal.modal-appointment>Marcar consulta</b-button>
       <b-button v-b-modal.modal-2>Cadastrar médico</b-button>
       <b-button v-b-modal.modal-3>Cadastrar especialidade</b-button>
       <b-button v-b-modal.modal-type>Cadastrar tipo de consulta</b-button>
@@ -9,30 +9,42 @@
     </b-container>
 
     <!-- modal para marcar consulta -->
-    <b-modal id="modal-1" title="Marcar consulta">
-      <div class="col">
-        <label for="input-live">Paciente:</label>
-        <b-form-select
-          v-model="patientSelected"
-          :options="patients"
-        ></b-form-select>
-      </div>
-      <div class="col">
-        <label for="input-live">Especialidade:</label>
-        <b-form-select v-model="specialtySelected" :options="speciality" />
-      </div>
-      <div class="col">
-        <label for="input-live">Tipo de consulta:</label>
-        <b-form-select v-model="typeSelected" :options="types" />
-      </div>
-      <div class="col">
-        <label>Médico:</label>
-        <b-form-select v-model="doctorSelected" :options="doctors" />
-      </div>
-      <div class="col">
-        <label>Data:</label>
-        <b-form-input type="datetime-local" />
-      </div>
+    <b-modal
+      id="modal-appointment"
+      title="Marcar consulta"
+      ref="modal"
+      @ok="handleOk"
+    >
+      <form ref="form" @submit.stop.prevent="createAppointment">
+        <div class="col">
+          <label for="input-live">Paciente:</label>
+          <b-form-select
+            v-model="patientSelected"
+            :options="patients"
+            required
+          ></b-form-select>
+        </div>
+        <div class="col">
+          <label for="input-live">Especialidade:</label>
+          <b-form-select
+            v-model="specialtySelected"
+            :options="speciality"
+            required
+          />
+        </div>
+        <div class="col">
+          <label for="input-live">Tipo de consulta:</label>
+          <b-form-select v-model="typeSelected" :options="types" required />
+        </div>
+        <div class="col">
+          <label>Médico:</label>
+          <b-form-select v-model="doctorSelected" :options="doctors" required />
+        </div>
+        <div class="col">
+          <label>Data:</label>
+          <b-form-input type="datetime-local" v-model="hourSelected" />
+        </div>
+      </form>
     </b-modal>
 
     <!-- modal para cadastrar médico -->
@@ -129,6 +141,7 @@ import useDoctor from "@/hooks/useDoctor";
 import usePatient from "@/hooks/usePatient";
 import useTypeAppointment from "@/hooks/useTypeAppointment";
 import useSpeciality from "@/hooks/useSpeciality";
+import useAppointment from "@/hooks/useAppointment";
 
 export default {
   name: "Appointment",
@@ -154,6 +167,8 @@ export default {
 
       typeSelected: null,
       types: [{ value: null, text: "Selecione um tipo de consulta" }],
+
+      hourSelected: null,
     };
   },
   created() {
@@ -163,6 +178,28 @@ export default {
     this.getTypes();
   },
   methods: {
+    createAppointment() {
+      const AppointmentForm = {
+        especialidade_id: this.specialtySelected,
+        tipo_de_consulta_id: this.typeSelected,
+        medico_id: this.doctorSelected,
+        paciente_id: this.patientSelected,
+        data: this.hourSelected,
+      };
+
+      const { createAppointment } = useAppointment();
+      createAppointment(AppointmentForm);
+
+      this.$bvModal.hide("modal-appointment");
+    },
+
+    handleOk(bvModalEvent) {
+      bvModalEvent.preventDefault();
+      this.createAppointment();
+
+      this.$bvModal.hide("modal-appointment");
+    },
+
     createPatient(event) {
       event.preventDefault();
       const { createPatient } = usePatient();
@@ -204,7 +241,7 @@ export default {
 
       const res = await getAllPatients();
 
-      res.data.map((patient) => {
+      res.data.data.map((patient) => {
         this.patients.push({ value: patient.id, text: patient.name });
       });
     },
@@ -213,7 +250,7 @@ export default {
       const { getAllTypes } = useTypeAppointment();
 
       const res = await getAllTypes();
-      console.log(res);
+
       res.data.map((type) => {
         this.types.push({ value: type.id, text: type.name });
       });
